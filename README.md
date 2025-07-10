@@ -17,7 +17,7 @@ A ideia é oferecer uma aplicação web simples onde o usuário pode:
 ## 🧰 Tecnologias utilizadas
 
 ### Backend
-- Java 21
+- Java 17
 - Spring Boot
 - Spring Security (JWT)
 - Spring Data JPA
