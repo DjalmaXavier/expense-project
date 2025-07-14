@@ -52,10 +52,10 @@ public class Expenses implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "expenses", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
-    private Set<ExpensesInstallments> ExpensesInstallments = new HashSet<>();
+    private Set<ExpensesInstallments> expensesInstallments = new HashSet<>();
 
     public void setUser(User user) {
         this.user = user;
