@@ -50,6 +50,12 @@ public class User implements Serializable {
     @JsonIgnore
     private Set<Expenses> expenses = new HashSet<>();
 
+    public User(String name, String login, String password) {
+        this.name = name;
+        this.login = login;
+        this.password = password;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
