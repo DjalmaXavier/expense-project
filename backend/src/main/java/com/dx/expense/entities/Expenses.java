@@ -57,6 +57,13 @@ public class Expenses implements Serializable {
     @JsonIgnore
     private Set<ExpensesInstallments> expensesInstallments = new HashSet<>();
 
+    public Expenses(String description, BigDecimal totalValue, int installments) {
+        this.description = description;
+        this.totalValue = totalValue;
+        this.installments = installments;
+        this.insertDate = LocalDateTime.now();
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
