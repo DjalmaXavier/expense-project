@@ -22,8 +22,7 @@ public class SecurityConfig {
                 .csrf(customizer -> customizer.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .headers(headers -> headers
                         .frameOptions(frameOptions -> frameOptions.sameOrigin()));
         return http.build();
