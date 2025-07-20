@@ -29,6 +29,7 @@ public class ExpensesInstallments implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "installment_id")
     private Long id;
 
     @Column(name = "installment_number")
