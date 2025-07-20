@@ -35,6 +35,7 @@ public class Expenses implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "expense_id")
     private Long id;
 
     private String description;
