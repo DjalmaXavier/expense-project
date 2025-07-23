@@ -8,4 +8,8 @@ import com.dx.expense.entities.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByLogin(String login);
+
+    Optional<User> existsByLogin(String login);
+
+    Optional<User> findByName(String name);
 }
