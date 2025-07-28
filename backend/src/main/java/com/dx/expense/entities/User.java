@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import com.dx.expense.dto.LoginRequestDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -65,6 +68,13 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    public User(String name, String login, String password, Set<Role> roles) {
+        this.name = name;
+        this.login = login;
+        this.password = password;
+        this.roles = roles;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -79,5 +89,9 @@ public class User implements Serializable {
 
     public void setSalary(double salary) {
         this.salary = salary;
+    }
+
+    public boolean isLoginCorrect(LoginRequestDTO login, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        return bCryptPasswordEncoder.matches(login.password(), this.password);
     }
 }
