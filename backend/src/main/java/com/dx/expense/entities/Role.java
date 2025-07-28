@@ -23,20 +23,20 @@ public class Role {
     private Long roleId;
 
     @Column(name = "role_description")
-    private String roleDescription;
+    private String description;
 
     public enum Types {
         ADMIN("ADMIN"),
         BASIC("BASIC");
 
-        private final String roleDescription;
+        private final String description;
 
-        Types(String roleDescription) {
-            this.roleDescription = roleDescription;
+        Types(String description) {
+            this.description = description;
         }
 
-        public String getRoleDescription() {
-            return roleDescription;
+        public String getDescription() {
+            return description;
         }
     }
 
