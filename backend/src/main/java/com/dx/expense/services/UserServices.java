@@ -1,11 +1,18 @@
 package com.dx.expense.services;
 
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.dx.expense.dto.LoginDTO;
+import com.dx.expense.dto.LoginRequestDTO;
 import com.dx.expense.dto.RegisterDTO;
+import com.dx.expense.entities.Role;
 import com.dx.expense.entities.User;
+import com.dx.expense.repository.RoleRepository;
 import com.dx.expense.repository.UserRepository;
 
 @Service
@@ -13,35 +20,41 @@ public class UserServices {
 
     private final UserRepository userRepository;
 
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private RoleRepository roleRepository;
+
     @Autowired
-    public UserServices(UserRepository userRepository) {
+    public UserServices(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder,
+            RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.roleRepository = roleRepository;
     }
 
-    public void registeredUser(RegisterDTO registerDTO) {
+    public User registerUser(RegisterDTO registerDTO) {
+
         if (!userRepository.findByLogin(registerDTO.login()).isEmpty()) {
-            throw new RuntimeException("Usuario já existe");
+            throw new IllegalArgumentException("Usuario já existe!");
         }
 
-        User user = new User(registerDTO.name(), registerDTO.login(), registerDTO.password());
+        var basicRole = roleRepository.findByDescription(Role.Types.BASIC.getDescription());
 
-        userRepository.save(user);
+        String password = bCryptPasswordEncoder.encode(registerDTO.password());
 
+        return userRepository
+                .save(new User(registerDTO.name(), registerDTO.login(), password, Set.of(basicRole.get())));
     };
 
-    public User loginResponse(LoginDTO loginDTO) {
-        try {
-            User user = userRepository.findByLogin(loginDTO.email()).get();
+    public User loginUser(LoginRequestDTO loginDTO) {
 
-            if (loginDTO.email().equals(user.getLogin()) && loginDTO.password().equals(user.getPassword())) {
-                return user;
-            }
-            return null;
+        User user = userRepository.findByLogin(loginDTO.email())
+                .orElseThrow(() -> new NoSuchElementException("Usuário não existe!"));
 
-        } catch (Exception e) {
-            return null;
+        if (!user.isLoginCorrect(loginDTO, bCryptPasswordEncoder)) {
+            throw new BadCredentialsException("Credenciais inválidas!");
         }
 
+        return user;
     }
-
 }

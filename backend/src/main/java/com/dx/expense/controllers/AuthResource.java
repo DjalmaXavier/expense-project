@@ -44,7 +44,7 @@ public class AuthResource {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
-            var user = userServices.loginResponse(loginRequestDTO);
+            var user = userServices.loginUser(loginRequestDTO);
 
             var token = tokenService.generateToken(user.getLogin());
 
