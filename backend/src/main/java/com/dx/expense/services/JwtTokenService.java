@@ -1,8 +1,5 @@
 package com.dx.expense.services;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Date;
 
@@ -10,6 +7,8 @@ import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.dx.expense.entities.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -36,13 +35,15 @@ public class JwtTokenService {
         }
     }
 
-    public String generateToken(String username) {
+    public String generateToken(User user) {
         try {
             return Jwts.builder()
                     .issuer("expense-control")
-                    .subject(username)
+                    .subject(user.getLogin())
                     .issuedAt(new Date())
                     .expiration(Date.from(Instant.now().plusSeconds(60 * 15))) // 15 min
+                    .claim("name", user.getName())
+                    .claim("roles", user.getRoles())
                     .signWith(key)
                     .compact();
         } catch (JwtException e) {

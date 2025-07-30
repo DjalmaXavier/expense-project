@@ -46,7 +46,7 @@ public class AuthResource {
         try {
             var user = userServices.loginUser(loginRequestDTO);
 
-            var token = tokenService.generateToken(user.getLogin());
+            var token = tokenService.generateToken(user);
 
             return ResponseEntity.ok(new LoginResponseDTO(token));
         } catch (BadCredentialsException e) {
