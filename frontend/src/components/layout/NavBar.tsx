@@ -4,16 +4,16 @@ import styles from "./styles.module.css";
 function NavBar() {
   return (
     <>
-      <nav className="navbar">
-        <Link to="/" className="navbar-logo">
-          Not too Expensive
+      <nav className={styles.navbar}>
+        <Link to="/" className={styles.logo}>
+          Off Gastos
         </Link>
 
-        <div className="navbar-actions">
-          <a role="button" className="navbar-login">
+        <div className={styles.actions}>
+          <a role="button" className={styles.button}>
             Login
           </a>
-          <a role="button" className="navbar-register">
+          <a role="button" className={styles.button}>
             Register
           </a>
         </div>
