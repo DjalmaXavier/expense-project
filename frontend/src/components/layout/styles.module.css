@@ -1,0 +1,38 @@
+.navbar {
+    background-color: rgb(29, 29, 29);
+    display: flex;
+    justify-content: space-between;
+    padding: 2em;
+}
+
+.logo {
+    color: rgb(230, 235, 235);
+    text-decoration: none;
+    font-size: 1.5em;
+}
+
+.actions {
+    color: rgb(230, 235, 235);
+    font-size: 1.2em;
+}
+
+.button {
+    padding: 1.6em;
+    cursor: pointer;
+    border: 0;
+    color: white;
+    padding: 10px 20px;
+}
+
+.button:active {
+    transform: translateY(5px);
+    box-shadow: 0 6px 0 ;
+}
+
+.footer{
+    background-color: gray;
+    margin-top: 4.62em;
+    padding: 1.5em;
+    display: flex;
+    justify-content: center;
+}
