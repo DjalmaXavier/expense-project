@@ -10,12 +10,12 @@ function NavBar() {
         </Link>
 
         <div className={styles.actions}>
-          <a role="button" className={styles.button}>
+          <Link to="/login" className={styles.button}>
             Login
-          </a>
-          <a role="button" className={styles.button}>
+          </Link>
+          <Link to="/register" className={styles.button}>
             Register
-          </a>
+          </Link>
         </div>
       </nav>
     </>
