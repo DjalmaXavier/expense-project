@@ -1,17 +1,15 @@
 package com.dx.expense.configs;
 
-import java.util.Set;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import com.dx.expense.entities.Role;
 import com.dx.expense.entities.User;
 import com.dx.expense.repository.RoleRepository;
 import com.dx.expense.repository.UserRepository;
-
 import jakarta.transaction.Transactional;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Set;
 
 @Configuration
 public class AdminUserConfig implements CommandLineRunner {
