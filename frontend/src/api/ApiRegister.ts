@@ -11,10 +11,8 @@ export const registerUser = async (user: any) => {
                 "Content-Type": "application/json"
             },
         });
-        console.log(response.data)
         return response.data;
     } catch (err: any) {
-        //Definir status na resposta
         return err.response.data;
     }
 }
