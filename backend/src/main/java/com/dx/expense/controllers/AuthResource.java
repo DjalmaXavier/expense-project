@@ -11,15 +11,14 @@ import com.dx.expense.services.JwtTokenService;
 import com.dx.expense.services.StatusCodeService;
 import com.dx.expense.services.UserServices;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -59,11 +58,35 @@ public class AuthResource {
 
             var token = tokenService.generateToken(user);
 
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(new LoginResponseDTO(token, user.getName()));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Credenciais inválidas: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String authHeader,
+            @RequestBody String name) {
+        try {
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.badRequest().body("Formato de token inválido");
+            }
+            String token = authHeader.substring(7);
+
+            String newToken = tokenService.refreshToken(token, name);
+            return ResponseEntity.ok(newToken);
+
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario não encontrado: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.err.println("Nullpointer: " + e);
+            return ResponseEntity.internalServerError().body("Erro ao renovar token: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Erro ao renovar token: " + e.getStackTrace());
+            return ResponseEntity.internalServerError().body("Erro ao renovar token: " + e.getMessage());
         }
     }
 
