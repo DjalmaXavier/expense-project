@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import styles from "./styles.module.css";
+import styles from "@/src/components/layout/styles.module.css";
 
 function NavBar() {
   return (
@@ -10,9 +10,6 @@ function NavBar() {
         </Link>
 
         <div className={styles.actions}>
-          <Link to="/login" className={styles.button}>
-            Login
-          </Link>
           <Link to="/register" className={styles.button}>
             Register
           </Link>
