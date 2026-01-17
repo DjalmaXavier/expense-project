@@ -35,7 +35,7 @@ public class UserServices {
     public User registerUser(RegisterDTO registerDTO) {
 
         if (!userRepository.findByLogin(registerDTO.login()).isEmpty()) {
-            throw new IllegalArgumentException("Usuario já existe!");
+            throw new IllegalArgumentException("Usuário já existe");
         }
 
         var basicRole = roleRepository.findByDescription(Role.Types.BASIC.getDescription());
