@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { accessToken } = useAuth();
-  return accessToken != null ? children : <Navigate to="/login" replace />;
+  return accessToken != null ? children : <Navigate to="/" replace />;
 }
 
 export default RequireAuth;
