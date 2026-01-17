@@ -1,4 +1,4 @@
-function Main() {
+function Dashboard() {
   return (
     <>
       <h1>Teste</h1>
@@ -6,4 +6,4 @@ function Main() {
   );
 }
 
-export default Main;
+export default Dashboard;
