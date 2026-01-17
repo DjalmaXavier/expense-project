@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const LOGIN_ENDPOINT = import.meta.env.VITE_AUTH_LOGIN_ENDPOINT;
-//const REFRESHTOKEN_ENDPOINT = import.meta.env.VITE_REFRESHTOKEN;
+const REFRESHTOKEN_ENDPOINT = import.meta.env.VITE_REFRESHTOKEN;
 
 export const loginUser = async (user: any) => {
     try {
@@ -12,13 +12,20 @@ export const loginUser = async (user: any) => {
             },
             withCredentials: true,
         });
-        
-        return response.data;
+        return response.data
     } catch (err: any) {
-        if(err.response) {
-            alert(err.response.data)
-        };
-        return;
+        return null;
     }
 }
 
+export const refreshToken = async () => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${REFRESHTOKEN_ENDPOINT}`, {}, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (err) {
+        console.log("Error refreshing token:", err);
+        return null;
+    }
+}

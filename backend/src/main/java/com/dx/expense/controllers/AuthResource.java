@@ -6,13 +6,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dx.expense.dto.LoginRequestDTO;
 import com.dx.expense.dto.LoginResponseDTO;
 import com.dx.expense.dto.RegisterDTO;
-import com.dx.expense.dto.ErrorResponseDTO;
+import com.dx.expense.entities.User;
 import com.dx.expense.services.JwtTokenService;
-import com.dx.expense.services.StatusCodeService;
 import com.dx.expense.services.UserServices;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.time.Duration;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,13 +36,10 @@ public class AuthResource {
 
     private final JwtTokenService tokenService;
 
-    private final StatusCodeService statusService;
-
     @Autowired
-    public AuthResource(UserServices userServices, JwtTokenService tokenService, StatusCodeService statusService) {
+    public AuthResource(UserServices userServices, JwtTokenService tokenService) {
         this.userServices = userServices;
         this.tokenService = tokenService;
-        this.statusService = statusService;
     }
 
     @PostMapping("/register")
@@ -43,42 +48,73 @@ public class AuthResource {
             userServices.registerUser(registerDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (RuntimeException e) {
-
-            ErrorResponseDTO error = statusService.createErrorResponse(e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e);
         }
 
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
         try {
             var user = userServices.loginUser(loginRequestDTO);
 
-            var token = tokenService.generateToken(user);
+            var acessToken = tokenService.generateAccessToken(user);
 
-            return ResponseEntity.ok(new LoginResponseDTO(token, user.getName()));
+            var refreshToken = tokenService.generateRefreshToken(user);
+
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .path("/")
+                    .maxAge(Duration.ofDays(7))
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            return ResponseEntity.ok(new LoginResponseDTO(acessToken, user.getName()));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Credenciais inválidas: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno: " + e.getMessage());
         }
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String authHeader,
-            @RequestBody String name) {
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
 
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.badRequest().body("Formato de token inválido");
+            if (request.getCookies() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nenhum cookie encontrado");
             }
-            String token = authHeader.substring(7);
 
-            String newToken = tokenService.refreshToken(token, name);
-            return ResponseEntity.ok(newToken);
+            String refreshToken = Arrays.stream(request.getCookies())
+                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
 
+            if (refreshToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token de atualização não encontrado");
+            }
+
+            User user = tokenService.extractUser(refreshToken);
+
+            String newAccessToken = tokenService.generateAccessToken(user);
+
+            String newRefreshToken = tokenService.generateRefreshToken(user);
+
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .path("/")
+                    .maxAge(Duration.ofDays(7))
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            return ResponseEntity.ok(new LoginResponseDTO(newAccessToken, user.getName()));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario não encontrado: " + e.getMessage());
         } catch (NullPointerException e) {
@@ -90,4 +126,24 @@ public class AuthResource {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .path("/")
+                    .maxAge(0)
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            return ResponseEntity.ok().body("Logout realizado com sucesso");
+        } catch (Exception e) {
+            System.err.println("Erro ao fazer logout: " + e.getStackTrace());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao fazer logout: " + e.getMessage());
+        }
+    }
 }
