@@ -3,8 +3,6 @@ package com.dx.expense.services;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.NoSuchElementException;
-
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.dx.expense.entities.User;
-import com.dx.expense.repository.UserRepository;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -29,14 +25,11 @@ public class JwtTokenService {
 
     private SecretKey key;
 
-    private final UserRepository userRepository;
-
     private final long ACCESS_TOKEN_EXP = 60 * 15; // 15 min
     private final long REFRESH_TOKEN_EXP = 7; // 7 dias
 
     @Autowired
-    public JwtTokenService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public JwtTokenService() {
     }
 
     @PostConstruct
@@ -83,34 +76,48 @@ public class JwtTokenService {
 
     }
 
-    public User extractUser(String token) {
-        try {
-            String username = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .getSubject();
+    public String generateAccessTokenFromClaims(String token) {
 
-            return userRepository.findByLogin(username)
-                    .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado no token"));
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException("Token inválido: " + e.getMessage());
-        }
+        Claims claims = isTokenValid(token);
+
+        return Jwts.builder()
+                .issuer("expense-control")
+                .subject(claims.getSubject())
+                .issuedAt(new Date())
+                .expiration(Date.from(Instant.now().plusSeconds(ACCESS_TOKEN_EXP))) // 15 min
+                .claim("name", claims.get("name"))
+                .claim("roles", claims.get("roles"))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRefreshTokenFromClaims(String token) {
+
+        Claims claims = isTokenValid(token);
+
+        return Jwts.builder()
+                .issuer("expense-control")
+                .subject(claims.getSubject())
+                .issuedAt(new Date())
+                .expiration(Date.from(Instant.now().plus(REFRESH_TOKEN_EXP, ChronoUnit.DAYS)))
+                .claim("name", claims.get("name"))
+                .claim("roles", claims.get("roles"))
+                .signWith(key)
+                .compact();
     }
 
     // Verifica a validade do Token
-    public boolean isTokenValid(String token, String username) {
+    public Claims isTokenValid(String token) {
         try {
             Claims claims = Jwts.parser()
-                    .verifyWith(key) // Pega a chave que criamos
+                    .verifyWith(key)
                     .build()
-                    .parseSignedClaims(token) // Compara
-                    .getPayload(); // Se bateu, traz o payload
+                    .parseSignedClaims(token)
+                    .getPayload();
 
-            return username.equals(claims.getSubject()) && !claims.getExpiration().before(new Date());
+            return claims;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            return null;
         }
     }
 }

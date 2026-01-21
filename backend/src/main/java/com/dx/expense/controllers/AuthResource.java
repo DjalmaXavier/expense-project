@@ -10,6 +10,7 @@ import com.dx.expense.entities.User;
 import com.dx.expense.services.JwtTokenService;
 import com.dx.expense.services.UserServices;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +27,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -44,13 +44,8 @@ public class AuthResource {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDTO registerDTO) {
-        try {
-            userServices.registerUser(registerDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e);
-        }
-
+        userServices.registerUser(registerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
@@ -72,7 +67,7 @@ public class AuthResource {
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-            return ResponseEntity.ok(new LoginResponseDTO(acessToken, user.getName()));
+            return ResponseEntity.ok(new LoginResponseDTO(acessToken));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
@@ -98,11 +93,9 @@ public class AuthResource {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token de atualização não encontrado");
             }
 
-            User user = tokenService.extractUser(refreshToken);
+            String acessToken = tokenService.generateAccessTokenFromClaims(refreshToken);
 
-            String newAccessToken = tokenService.generateAccessToken(user);
-
-            String newRefreshToken = tokenService.generateRefreshToken(user);
+            String newRefreshToken = tokenService.generateRefreshTokenFromClaims(refreshToken);
 
             ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
                     .httpOnly(true)
@@ -114,7 +107,7 @@ public class AuthResource {
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-            return ResponseEntity.ok(new LoginResponseDTO(newAccessToken, user.getName()));
+            return ResponseEntity.ok(new LoginResponseDTO(acessToken));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario não encontrado: " + e.getMessage());
         } catch (NullPointerException e) {
