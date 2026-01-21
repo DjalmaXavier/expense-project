@@ -6,12 +6,20 @@ import {
   PageNotFound,
 } from "@src/components/pages/indexPages";
 import RequireAuth from "./RequireAuth";
+import GuestRoute from "./GuestRoute";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route index element={<Home />} />
+        <Route
+          index
+          element={
+            <GuestRoute>
+              <Home />
+            </GuestRoute>
+          }
+        />
         <Route path="*" element={<PageNotFound />} />
         <Route path="register" element={<Register />} />
         <Route
