@@ -12,6 +12,7 @@ import com.dx.expense.dto.LoginRequestDTO;
 import com.dx.expense.dto.RegisterDTO;
 import com.dx.expense.entities.Role;
 import com.dx.expense.entities.User;
+import com.dx.expense.exception.EmailAlreadyExistException;
 import com.dx.expense.repository.RoleRepository;
 import com.dx.expense.repository.UserRepository;
 
@@ -35,7 +36,7 @@ public class UserServices {
     public User registerUser(RegisterDTO registerDTO) {
 
         if (!userRepository.findByLogin(registerDTO.login()).isEmpty()) {
-            throw new IllegalArgumentException("Usuário já existe");
+            throw new EmailAlreadyExistException();
         }
 
         var basicRole = roleRepository.findByDescription(Role.Types.BASIC.getDescription());
