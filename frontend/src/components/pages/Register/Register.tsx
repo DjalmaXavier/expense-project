@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import FootBar from "../../layout/FootBar";
-import NavBar from "../../layout/NavBar";
+import FootBar from "@src/components/layout/FootBar";
+import NavBar from "@src/components/layout/NavBar";
 import { useState } from "react";
-import { registerUser } from "../../../api/ApiRegister";
+import { registerUser } from "@src/api/ApiRegister";
+import styles from "./style.module.css";
+import { FlashMessageError } from "@src/components/utils/FlashMessages";
 
 function Register() {
   const navigate = useNavigate();
@@ -10,71 +12,74 @@ function Register() {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [confirmedPassword, setConfirmedPassword] = useState("");
+  const [flashMessage, setFlashMessage] = useState<string | null>(null);
 
   function saveUser(e: any) {
     e.preventDefault();
 
     if (confirmedPassword !== password) {
-      alert("Passwords do not match!");
+      setFlashMessage("As senhas não coincidem!");
       return;
     }
 
     const user = { login, password, name };
-    registerUser(user).then((e: any) =>
-      //Fazer tabela de status
-
-      navigate("/login")
-    );
+    registerUser(user).then((e: any) => {
+      if (e.code === "EMAIL_ALREADY_EXISTS") {
+        setFlashMessage("E-mail já cadastrado!");
+        return;
+      }
+      navigate("/login");
+    });
   }
 
   return (
     <>
-      <div>
+      <div className="app">
         <NavBar />
-        <div>
+        <div className={styles.main}>
           <h1>REGISTER PAGE</h1>
-          <form>
-            <div>
-              <label>Username: </label>
-              <input
-                type="text"
-                placeholder="Insert username"
-                onChange={(e: any) => setName(e.target.value)}
-                name="username"
-              />
-            </div>
-            <div>
-              <label>Email address</label>
+          <form className={styles.form}>
+            <span className={styles.input_span}>
+              <label className={styles.label}>Username</label>
               <input
                 type="email"
-                placeholder="Insert email"
+                onChange={(e: any) => setName(e.target.value)}
+              />
+            </span>
+            <span className={styles.input_span}>
+              <label className={styles.label}>E-mail</label>
+              <input
+                type="email"
                 onChange={(e: any) => setLogin(e.target.value)}
-                name="email"
               />
-            </div>
-            <div>
-              <label>Password</label>
+            </span>
+            <span className={styles.input_span}>
+              <label className={styles.label}>Password</label>
               <input
                 type="password"
-                placeholder="Insert password"
                 onChange={(e: any) => setPassword(e.target.value)}
-                name="password"
               />
-            </div>
-            <div>
-              <label>Confirm Password</label>
+            </span>
+            <span className={styles.input_span}>
+              <label className={styles.label}>Confirm password</label>
               <input
                 type="password"
-                placeholder="Confirm Password"
                 onChange={(e: any) => setConfirmedPassword(e.target.value)}
-                name="confirmPassword"
               />
-            </div>
-            <div>
-              <button type="submit" onClick={saveUser}>
-                Cadastrar
-              </button>
-            </div>
+            </span>
+            <input
+              type="submit"
+              value="Register"
+              className={styles.submit}
+              onClick={saveUser}
+            />
+            {flashMessage && (
+              <FlashMessageError
+                key={flashMessage}
+                message={flashMessage}
+                onClose={() => setFlashMessage(null)}
+              />
+            )}
           </form>
         </div>
       </div>
