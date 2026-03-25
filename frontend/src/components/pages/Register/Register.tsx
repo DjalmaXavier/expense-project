@@ -4,7 +4,7 @@ import NavBar from "@src/components/layout/NavBar";
 import { useState } from "react";
 import { registerUser } from "@src/api/ApiRegister";
 import styles from "./style.module.css";
-import { FlashMessageError } from "@src/components/utils/FlashMessages";
+import { FlashMessage } from "@src/components/utils/FlashMessages";
 
 function Register() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function Register() {
     const user = { login, password, name };
     registerUser(user).then((e: any) => {
       if (e.code === "EMAIL_ALREADY_EXISTS") {
-        setFlashMessage("E-mail já cadastrado!");
+        setFlashMessage(e.message);
         return;
       }
       navigate("/login");
@@ -74,7 +74,7 @@ function Register() {
               onClick={saveUser}
             />
             {flashMessage && (
-              <FlashMessageError
+              <FlashMessage
                 key={flashMessage}
                 message={flashMessage}
                 onClose={() => setFlashMessage(null)}

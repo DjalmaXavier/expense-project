@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@hook/useAuth";
 import { FootBar, NavBar } from "@src/components/layout/indexLayouts";
-import { FlashMessageError } from "@src/components/utils/FlashMessages";
+import { FlashMessage } from "@src/components/utils/FlashMessages";
 import styles from "./styles.module.css";
 
 function Home() {
@@ -53,7 +53,7 @@ function Home() {
                 Don't have an account? <Link to={"/register"}>Sign up</Link>
               </span>
               {flashMessage && (
-                <FlashMessageError
+                <FlashMessage
                   key={flashMessage}
                   message={flashMessage}
                   onClose={() => setFlashMessage(null)}
