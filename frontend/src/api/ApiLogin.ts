@@ -21,7 +21,7 @@ export const loginUser = async (user: any) => {
 
 export const logoutUser = async () => {
     try {
-       axios.post(`${API_BASE_URL}${LOGOUT_ENDPOINT}`, {}, {
+       await axios.post(`${API_BASE_URL}${LOGOUT_ENDPOINT}`, {}, {
             withCredentials: true,
         });     
     } catch (err) {
