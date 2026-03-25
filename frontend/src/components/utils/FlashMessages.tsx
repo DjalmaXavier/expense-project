@@ -8,7 +8,7 @@ interface FlashMessage {
   onClose: () => void;
 }
 
-export const FlashMessageError: React.FC<FlashMessage> = ({
+export const FlashMessage: React.FC<FlashMessage> = ({
   message,
   type = "error",
   duration = 3000,
