@@ -1,41 +1,39 @@
 # 💸 Controle de gastos
 
-Este projeto foi pensado inicialmente como um SaaS, mas pensei em desenvolver uma versão adaptada exclusivamente para fins de portfólio e estudo. A partir dele, pretendo demonstrar de forma prática, meus conhecimentos em **Java (Spring Boot)**, e aprender em tempo de desenvolvimento o  **React.js com TypeScript**, focando em um projeto fullstack funcional.
+O Off Gastos é um projeto fullstack desenvolvido para fins de portfólio e estudo. A aplicação tem como base a integração entre uma API robusta em Java (Spring Boot) e um frontend utilizando React.js com TypeScript.
 
 ---
 
 ## 🧠 Objetivo
 
-A ideia é oferecer uma aplicação web simples onde o usuário pode:
-- Criar uma conta e fazer login
-- Registrar seus gastos
-- Visualizar os gastos mensais
-- Filtrar os gastos por mês
+O Off Gastos é uma aplicação para gestão financeira pessoal, permitindo o controle centralizado de despesas com foco em praticidade e segurança.
 
 ---
 
 ## 🧰 Tecnologias utilizadas
 
 ### Backend
+
 - Java 17
-- Spring Boot
+- Spring Boot 3
 - Spring Security (JWT)
 - Spring Data JPA
-- H2 Database (memória)
+- PostgresSQL & Docker / Docker Compose
 
 ### Frontend
+
 - React.js
 - TypeScript
 - Vite
 - Axios
-- Bootstrap 5
+- Lucide React
 
 ---
 
 ## ⚙️ Funcionalidades disponíveis
 
-- [ ] Registro e login de usuários
-- [ ] Autenticação via token JWT
+- [✅] Registro e login de usuários
+- [✅] Autenticação via token JWT
 - [ ] Cadastro de gastos
 - [ ] Listagem de gastos por mês
 - [ ] Edição/remoção de gastos
@@ -56,4 +54,4 @@ Por fim: Qualquer sugestão e dicas construtivas serão bem vindas!
 
 Este projeto está licenciado sob a [MIT License](https://github.com/DjalmaXavier/expense-project/blob/main/LICENSE).
 
-(Última atualização: 07/2025)
+(Última atualização: 03/2026)
